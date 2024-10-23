@@ -25,3 +25,4 @@ https://github.com/ROBINADC/Neural-Enhanced-Live-Streaming - A real-time streami
 
 https://keras.io/examples/nlp/ner_transformers/ - NER with Keras
 
+https://pyimagesearch.com/2024/06/10/automatic-license-plate-reader-using-ocr-in-python/ - new article about a new OCR technique I have not seen before. TODO try this out?
