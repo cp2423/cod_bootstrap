@@ -122,12 +122,18 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+
+#############################################
+#
+#  STORE ENV AS THIS IS HELPFUL TO US
+#
+#############################################
+#.env
 .venv
-env/
+#env/
 venv/
-ENV/
-env.bak/
+#ENV/
+#env.bak/
 venv.bak/
 
 # Spyder project settings
