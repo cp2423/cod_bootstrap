@@ -16,7 +16,7 @@ REGIONS = {
     # NB Rectangle is y1, y2, x1, x2
     "service_no": Rectangle(30, 65, 190, 300),
     "surname": Rectangle(30, 65, 600, 850),
-    "unit": Rectangle(100, 139, 200, 400)
+    "forenames": Rectangle(30, 65, 865, 1150)
 }
 
 TESSERACT_OPTIONS = {
