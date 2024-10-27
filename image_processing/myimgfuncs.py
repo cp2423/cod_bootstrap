@@ -44,10 +44,9 @@ def dilate(img: ndarray) -> ndarray:
     return cv2.dilate(img, None)
 
 def clean(img:ndarray) -> ndarray:
-    size = (img.shape[1] * 2, img.shape[0] * 2)
+    size = (img.shape[1] * 4, img.shape[0] * 4)
     img = cv2.resize(img, size, interpolation=cv2.INTER_CUBIC)
-    img = get_binary_image(img)
-    #img = denoise(img)
+    img = denoise(img)
     img = dilate(img)
     return img
 
