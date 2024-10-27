@@ -19,22 +19,37 @@ def snip_image(img: ndarray, r: Rectangle):
     return img[r.y1:r.y2, r.x1:r.x2]
 
 
-# Load image, grayscale, Otsu's threshold
-def load_snip(filename: str, r: Rectangle) -> ndarray:
+# Load image
+def load_snip(filepath: str, r: Rectangle) -> ndarray:
     # TODO consider if normalization and/or standardization would help?
     # (apparently might help model learn, more research needed)
-    img = cv2.imread(filename)
-    #img_8bit = img.copy()
-    #cv2.normalize(img, img_8bit, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-    #return img_8bit
+    img = cv2.imread(filepath)
     return snip_image(img, r)
 
 
+# Make grayscale, Otsu's threshold
 def get_binary_image(img: ndarray) -> ndarray:
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
 
     return thresh
+
+
+def denoise(img: ndarray) -> ndarray:
+    # using recommended values from https://docs.opencv.org/3.4/d5/d69/tutorial_py_non_local_means.html
+    return cv2.fastNlMeansDenoising(img, 10, 10, 7, 21)
+
+
+def dilate(img: ndarray) -> ndarray:
+    return cv2.dilate(img, None)
+
+def clean(img:ndarray) -> ndarray:
+    size = (img.shape[1] * 2, img.shape[0] * 2)
+    img = cv2.resize(img, size, interpolation=cv2.INTER_CUBIC)
+    img = get_binary_image(img)
+    #img = denoise(img)
+    img = dilate(img)
+    return img
 
 
 # Find contours, obtain bounding box
@@ -64,9 +79,8 @@ def find_bounding_box(img: ndarray) -> Rectangle:
     return Rectangle(min_y, max_h, min_x, max_w)
 
 
-def upscale_region(img: ndarray, r: Rectangle) -> ndarray:
-    region = snip_image(img, r)
-    return upscaler.upscale(region)
+def upscale(img: ndarray) -> ndarray:
+    return upscaler.upscale(img)
 
 
 def show(img: ndarray) -> None:
