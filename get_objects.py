@@ -8,6 +8,8 @@ from os.path import isdir
 import cv2
 from pprint import pprint
 
+
+
 OUTPUT_FOLDER = "regions/"
 if not isdir(OUTPUT_FOLDER):
     mkdir(OUTPUT_FOLDER)
@@ -28,7 +30,6 @@ TESSERACT_OPTIONS = {
 
 def get_source_images(path: str, extension: str)  -> list[str]:
     return [f.path for f in scandir(path) if f.name.endswith(extension)]
-
 
 
 # iterate through source images

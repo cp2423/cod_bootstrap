@@ -1,3 +1,6 @@
+import cv2
+import myimgfuncs
+from myimgfuncs import Rectangle
 import pytesseract
 from numpy import ndarray
 
@@ -6,6 +9,11 @@ DIGITS = "-c tessedit_char_whitelist=" + "".join([str(i) for i in range(0, 10)])
 
 
 def read_text(img: ndarray, options) -> str:
-    #img_rgb = cvtColor(img, COLOR_BGR2RGB)
-    #return pytesseract.image_to_string(img_rgb)
     return pytesseract.image_to_string(img, config= "--psm 7 " + options)
+
+
+def find_character_boxes(img: ndarray) -> list[Rectangle]:
+    cnts = myimgfuncs.find_contours(img)
+
+    for c in cnts:
+        x,y,w,h = cv2.boundingRect(c)

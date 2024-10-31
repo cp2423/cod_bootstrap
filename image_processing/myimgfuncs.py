@@ -51,19 +51,25 @@ def clean(img:ndarray) -> ndarray:
     return img
 
 
-# Find contours, obtain bounding box
-def find_bounding_box(img: ndarray) -> Rectangle:
-    # findContours requires binary image
-    thresh = get_binary_image(img)
 
+def find_contours(img: ndarray):
+     # findContours requires binary image
+    thresh = get_binary_image(img)
+    cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+
+    return cnts
+
+
+# Find all text in area using contours, obtain bounding box
+def find_bounding_box(img: ndarray) -> Rectangle:
     # initalise box to cover whole image
     min_y = img.shape[0]  # 0 => rows
     min_x = img.shape[1]  # 1 => cols
     max_w = max_h = 0
 
     # find all contours
-    cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+    cnts = find_contours(img)
 
     # iteratively narrow box down to region of image
     for c in cnts:
