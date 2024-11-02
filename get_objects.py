@@ -1,5 +1,5 @@
 from cv2 import imwrite
-from locations import IMAGE_TEST_FOLDER
+from sources.locations import IMAGE_TEST_FOLDER
 import myimgfuncs
 from myimgfuncs import Rectangle
 import myocrfuncs
