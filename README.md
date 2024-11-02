@@ -33,6 +33,6 @@ https://keras.io/examples/nlp/ner_transformers/ - NER with Keras
 
 https://pyimagesearch.com/2024/06/10/automatic-license-plate-reader-using-ocr-in-python/ - new article about a new OCR technique I have not seen before. TODO try this out?
 
-https://pyimagesearch.com/2021/04/28/opencv-morphological-operations/ - various tecnhiques for enhancing text
+https://pyimagesearch.com/2021/04/28/opencv-morphological-operations/ - various techiques for enhancing text
 
 https://medium.com/@relaxandplanttrees/upscale-cropand-add-text-to-images-with-python-04f37638b968 - upscaling with torchvision

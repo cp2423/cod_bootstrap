@@ -3,16 +3,19 @@ from dataclasses import dataclass
 from numpy import ndarray
 from upscaler.edsr_model import SuperRes
 
-MIN_CONTOUR_SIZE = 3
+MIN_CONTOUR_SIZE = 0  # was 3
 
 upscaler = SuperRes()
 
-@dataclass
+@dataclass(order=True)
 class Rectangle:
     y1: int
     y2: int
     x1: int
     x2: int
+
+    def __post_init__(self):
+        self.sort_index = self.x1
 
 
 def snip_image(img: ndarray, r: Rectangle):
@@ -51,7 +54,7 @@ def clean(img:ndarray) -> ndarray:
     return img
 
 
-
+# original source: https://stackoverflow.com/questions/21104664/extract-all-bounding-boxes-using-opencv-python
 def find_contours(img: ndarray):
      # findContours requires binary image
     thresh = get_binary_image(img)
@@ -62,7 +65,7 @@ def find_contours(img: ndarray):
 
 
 # Find all text in area using contours, obtain bounding box
-def find_bounding_box(img: ndarray) -> Rectangle:
+def find_bounding_box(img: ndarray, show=False) -> Rectangle:
     # initalise box to cover whole image
     min_y = img.shape[0]  # 0 => rows
     min_x = img.shape[1]  # 1 => cols
@@ -72,14 +75,25 @@ def find_bounding_box(img: ndarray) -> Rectangle:
     cnts = find_contours(img)
 
     # iteratively narrow box down to region of image
+    print("Countours found:", len(cnts))
     for c in cnts:
         x,y,w,h = cv2.boundingRect(c)
+        # throw out small boxes
         if w < MIN_CONTOUR_SIZE or h < MIN_CONTOUR_SIZE:
             continue
+        # throw out rectangular boxes
+        ratio = w / h
+        print(ratio)
         if x < min_x: min_x = x
         if y < min_y: min_y = y
         if x + w > max_w: max_w = x + w
         if y + h > max_h: max_h = y + h
+
+        if show:
+            cv2.rectangle(img, (x, y), (x + w, y + h), (36,255,12), 1)
+
+    if show:
+        show_img(img, len(cnts))
 
     return Rectangle(min_y, max_h, min_x, max_w)
 
@@ -88,6 +102,6 @@ def upscale(img: ndarray) -> ndarray:
     return upscaler.upscale(img)
 
 
-def show(img: ndarray) -> None:
-    cv2.imshow("image", img)
+def show_img(img: ndarray, title="image") -> None:
+    cv2.imshow(str(title), img)
     cv2.waitKey()

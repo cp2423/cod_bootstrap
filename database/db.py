@@ -20,9 +20,12 @@ class Database(metaclass=DatabaseMeta):
         if params and type(params) is not tuple:
             params = (params,)
         with self.con as con:
-            res = con.execute(sql, params)
-
-            return res.fetchone()
+            cur = con.execute(sql, params)
+            res = cur.fetchall()
+            if len(res) == 1:
+                # hack to avoid having to think about if result is list or not
+                return res[0]
+            return res
 
 
     def find_service_no(self, service_no: str):
