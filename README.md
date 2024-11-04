@@ -23,6 +23,23 @@ Winning candidate:
       'surname': 'HONNOH\n',
       'unit': '15th PaLtetson ——,\n'},
 ```
+
+## Learning about the threshold function
+
+This effectively sums it all up:
+
+```
+# basic functional threshold: returns 42 for pixels > 210
+thresh_val, thresh_img = cv2.threshold(gray, 210, 42, cv2.THRESH_BINARY)
+```
+
+The key takeaway is that the two values are NOT operating as a "range", instead the first value is the threshold to use and the second is what value will be used for matching pixels.
+
+Hence setting the second value to 0 (which I have done in testing scenarios) is totally pointless, as all the result pixels will have 0 as their value!
+
+Adding in Otsu with `cv2.THRESH_OTSU` renders your chosen threshold (first value) redundant and picks the threshold for you based on the image.
+
+
 ## Random stuff I found at the start
 
 https://github.com/idea-fasoc/datasheet-scrubber - the datasheet scrubber project which started this iteration. Also https://www.sciencedirect.com/science/article/pii/S2590005622000595 which I think put me on to it.
