@@ -30,7 +30,7 @@ class Database(metaclass=DatabaseMeta):
 
     def find_service_no(self, service_no: str):
         # cwgc download has each service no wrapped in single quotes
-        service_no = f"'{service_no}'"
+        #service_no = f"'{service_no}'"
         sql = "select * from cwgc where ServiceNumber = ?"
 
         return self._query(sql, service_no)

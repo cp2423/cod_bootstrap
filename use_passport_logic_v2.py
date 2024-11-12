@@ -3,9 +3,17 @@
 import numpy as np
 import pytesseract
 import os
-import operator
 import cv2
-from matplotlib import pyplot as plt
+
+from database.db import Database
+
+db = Database()
+
+
+def get_casualty(service_no_text):
+    clean = service_no_text.strip()
+    r = db.find_service_no(clean)
+    return (r[8], r[3], r[1], r[11])
 
 
 def is_in_range(dim, range_tuple):
@@ -97,8 +105,9 @@ def process(fp):
         # add 2px padding
         service_no_img = image[sy-2:sy+sh+2, sx:sx+sw]
         service_no_text = pytesseract.image_to_string(service_no_img, config=f"--psm 8 {DIGITS}")
-        title = f"{i+1} of {len(service_no_candidates)}  {service_no_text}"
-        cv2.imshow(title, service_no_img)
+        casualty = get_casualty(service_no_text)
+        title = f"{i+1} of {len(service_no_candidates)}  {' '.join(casualty)}"
+        cv2.imshow(title, image)
         cv2.waitKey()
 
 
