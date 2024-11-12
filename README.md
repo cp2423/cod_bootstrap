@@ -53,3 +53,7 @@ https://pyimagesearch.com/2024/06/10/automatic-license-plate-reader-using-ocr-in
 https://pyimagesearch.com/2021/04/28/opencv-morphological-operations/ - various techiques for enhancing text
 
 https://medium.com/@relaxandplanttrees/upscale-cropand-add-text-to-images-with-python-04f37638b968 - upscaling with torchvision
+
+### Possible reading
+
+Full(ish) tutorial on "OCR with Keras, TensorFlow, and Deep Learning" https://pyimagesearch.com/2020/08/17/ocr-with-keras-tensorflow-and-deep-learning/

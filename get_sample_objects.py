@@ -20,14 +20,15 @@ def get_objects(src, show=False):
         objs = []
         for region in REGIONS:
             img = myimgfuncs.load_snip(src, region.rect)
-            bounding_box = myimgfuncs.find_bounding_box(img, True)
-            img = myimgfuncs.snip_image(img, bounding_box)
+            #bounding_box = myimgfuncs.find_bounding_box(img, True)
+            #img = myimgfuncs.snip_image(img, bounding_box)
             img = myimgfuncs.clean(img)
             if show:
                 myimgfuncs.show_img(img, src.name)
             #img = myimgfuncs.upscale(img)
-            boxes = myocrfuncs.get_character_boxes(img)
-            obj = ImageObject(region, img, boxes)
+            #boxes = myocrfuncs.get_character_boxes(img)
+            obj = myocrfuncs.get_region_object(img, region)
+            #obj = ImageObject(region, img, boxes)
             objs.append(obj)
 
         return objs
@@ -39,6 +40,7 @@ def get_objects(src, show=False):
             input("Press enter to coninue (or ctrl-c to kill)\n")
         except KeyboardInterrupt:
             raise(e)
+
 
 # return the first and last record from each volume
 def get_head_and_tail(vol: str) -> tuple[str, str]:

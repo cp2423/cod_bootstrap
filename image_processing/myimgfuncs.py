@@ -22,6 +22,13 @@ def snip_image(img: ndarray, r: Rectangle):
     return img[r.y1:r.y2, r.x1:r.x2]
 
 
+
+def snip_image(img: ndarray, x, y, w, h):
+    x2 = x+w
+    y2 = y+h
+    return img[y:y2, x:x2]
+
+
 # Load image
 def load_snip(filepath: str, r: Rectangle) -> ndarray:
     # TODO consider if normalization and/or standardization would help?
@@ -46,6 +53,12 @@ def denoise(img: ndarray) -> ndarray:
 def dilate(img: ndarray) -> ndarray:
     return cv2.dilate(img, None)
 
+
+def resize(img:ndarray, scale_factor=2):
+    size = (img.shape[1] * scale_factor, img.shape[0] * scale_factor)
+    return cv2.resize(img, size, interpolation=cv2.INTER_CUBIC)
+
+
 def clean(img:ndarray) -> ndarray:
     size = (img.shape[1] * 4, img.shape[0] * 4)
     img = cv2.resize(img, size, interpolation=cv2.INTER_CUBIC)
@@ -55,10 +68,10 @@ def clean(img:ndarray) -> ndarray:
 
 
 # original source: https://stackoverflow.com/questions/21104664/extract-all-bounding-boxes-using-opencv-python
-def find_contours(img: ndarray):
+def find_contours(binary_img: ndarray):
      # findContours requires binary image
-    thresh = get_binary_image(img)
-    cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    #thresh = get_binary_image(img)
+    cnts = cv2.findContours(binary_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = cnts[0] if len(cnts) == 2 else cnts[1]
 
     return cnts
