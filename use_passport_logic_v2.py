@@ -47,7 +47,7 @@ def process(fp):
     # load the input image, convert it to grayscale, and grab its
     # dimensions
     bgr = cv2.imread(fp)
-    # tesseract expects RBG !!
+    # tesseract expects RGB !!
     image = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -80,16 +80,7 @@ def process(fp):
     cnts = cnts[0] if len(cnts) == 2 else cnts[1]
     rects = [cv2.boundingRect(c) for c in cnts]
 
-    # use the makers mark on the form to chop off the left margin, it's in the middle of y
-    img_y_mid = image.shape[0] / 2
-
-    for x,y,w,h in sorted(rects, key=lambda r: r[0]):
-        if w > 20 and h > 40:
-            if y < img_y_mid and (y+h) > img_y_mid:
-                margin = x+w
-                break
-
-    DIGITS = "-c tessedit_char_whitelist=" + "".join([str(i) for i in range(0, 10)])
+    DIGITS = "-c tessedit_char_whitelist=A" + "".join([str(i) for i in range(0, 10)])
 
     service_no_candidates = get_service_no_candidates(rects)
     if len(service_no_candidates) == 0:
@@ -111,10 +102,11 @@ def process(fp):
         cv2.waitKey()
 
 
-FOLDER = "/Users/chris/Dev/cod_records/aws/extracted/31829_B016711/"
+FOLDER = "/Users/chris/Dev/cod_records/aws/extracted/31829_B016712/"
 IMAGES = [fp for fp in os.scandir(FOLDER) if fp.name.endswith(".jpg")]
 
-for fp in IMAGES:
+#for fp in IMAGES:
+for fp in [fp for fp in IMAGES if fp.name.endswith("00092.jpg")]:
     fileno = fp.name[-5]
     if int(fileno) % 2 == 1:
         continue
