@@ -5,6 +5,11 @@ import numpy as np
 
 from imgtypes import Img, Rect
 
+
+MIN_NORM_H = 615
+MAX_NORM_H = 619
+NORM_W = 1200
+
 # tesseract options
 CAPITALS = "-c tessedit_char_whitelist=" + "".join([chr(i) for i in range(65, 91)])
 DIGITS = "-c tessedit_char_whitelist=" + "".join([str(i) for i in range(0, 10)])
@@ -17,13 +22,13 @@ PSM_MODE = "--psm 8"
 # All the images are the same width (1200) so this is the only test required
 def is_normal_height(img: Img) -> bool:
     # these values were found empirically
-    return img.shape[0] >= 615 and img.shape[0] <= 619
+    return img.shape[0] >= MIN_NORM_H and img.shape[0] <= MAX_NORM_H
 
 
 def get_snipped(img: Img, rect: Rect, padding: int):
     x,y,w,h = rect
-    x0 = x - padding
-    x1 = x + w + padding
+    x0 = x #- padding
+    x1 = x + w #+ padding
     y0 = y - padding
     y1 = y + h + padding
 
@@ -34,20 +39,33 @@ def read_text(img: Img, options="") -> str:
     if img is None:
         return ""
     else:
-        return pytesseract.image_to_string(img, config=f"{PSM_MODE} {options}").strip()
+        text = pytesseract.image_to_string(img, config=f"{PSM_MODE} {options}")
+        # remove any trailing whitespace
+        text = text.strip()
+        # remonve any full stop
+        text = text.strip('.')
+
+        return text
 
 
 def get_rgb_img(filepath: str) -> Img:
     bgr = cv2.imread(filepath)
-    rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
-    return rgb
+    img = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+    if not is_normal_height(img):
+        # rescale to "normal" height, maintaining aspect ratio
+        print(f"{filepath} is not normal height, currently {img.shape}, resizing")
+        scale = MAX_NORM_H / img.shape[0]
+        new_w = int(NORM_W * scale)
+        img = cv2.resize(img, (new_w, MAX_NORM_H), interpolation=cv2.INTER_LINEAR)
+
+    return img
 
 
 def get_rects(img: Img) -> list[Rect]:
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     # initialize a rectangular and square structuring kernel
-    rectKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (19, 7))
+    rectKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (15, 7))
 
     # smooth the image using a 3x3 Gaussian blur and then apply a
     # blackhat morpholigical operator to find dark regions on a light

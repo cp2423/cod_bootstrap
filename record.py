@@ -1,5 +1,13 @@
 from image_processing import myocrfuncs
 from image_processing.imgtypes import Img, Rect
+import cv2
+
+RANGE_WIDTH = 100
+ROW_1_Y_RANGE = (35, 55)
+SERVICE_NO_X_RANGE = (180, 180 + RANGE_WIDTH)
+RANK_X_RANGE = (395, 395 + RANGE_WIDTH)
+SURNAME_X_RANGE = (595, 595 + RANGE_WIDTH)
+FORENAMES_X_RANGE = (865, 865 + RANGE_WIDTH)
 
 
 class _RecordPage:
@@ -13,14 +21,25 @@ class _RecordFrontPage(_RecordPage):
     def __init__(self, filepath: str):
         super().__init__(filepath)
         self.service_no_digits, self.service_no_all = self._get_service_no()
-        print(self.service_no_digits, self.service_no_all)
+        self.rank = self._get_text(RANK_X_RANGE, ROW_1_Y_RANGE)
+        s = " ".join([self.fp.name, self.service_no_digits, self.service_no_all, self.rank])
+        try:
+            cv2.imshow(s, self.img)
+            cv2.waitKey()
+            cv2.destroyAllWindows()
+        except:
+            pass
 
     def _get_service_no(self) -> str:
-        roi = _RegionOfImage(self, (180, 250), (35, 55))
+        roi = _RegionOfImage(self, SERVICE_NO_X_RANGE, ROW_1_Y_RANGE)
         digits = roi._get_digits_only()
         text = roi._get_all_text()
 
         return digits, text
+
+    def _get_text(self, x_range, y_range) -> str:
+        roi = _RegionOfImage(self, x_range, y_range)
+        return roi._get_all_text()
 
 
 class _RecordBackPage(_RecordPage):
@@ -39,7 +58,6 @@ class _RegionOfImage:
         self._x_range = x_range
         self._y_range = y_range
         self.img = self._get_img()
-
 
     def _is_candidate(self, rect: Rect) -> bool:
         tests = [
