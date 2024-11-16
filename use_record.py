@@ -1,18 +1,18 @@
 import os
-
-from database.db import Database
+from lookup import lookup
 from record import Record
 
-db = Database()
 FOLDER = "/Users/chris/Dev/cod_records/aws/extracted/"
 
 
-for (vol, _, _) in db.get_vols():
-    path = FOLDER + vol
-    images = [fp for fp in os.scandir(path) if fp.name.endswith(".jpg")]
+for fp in os.scandir(FOLDER):
+    if not fp.is_dir():
+        continue
+    images = [fp for fp in os.scandir(fp) if fp.name.endswith(".jpg")]
     images.sort(key=lambda fp: fp.name)
     pairs = [(images[i], images[i+1]) for i in range(0, len(images), 2)]
 
     for front, back in pairs:
-        r = Record(front, back)
+        r = Record(front.path, back.path)
+        lookup(r)
         break

@@ -1,13 +1,15 @@
 from image_processing import myocrfuncs
 from image_processing.imgtypes import Img, Rect
-import cv2
 
-RANGE_WIDTH = 100
+RANGE_WIDTH = 120
 ROW_1_Y_RANGE = (35, 55)
+ROW_2_Y_RANGE = (105, 125)
 SERVICE_NO_X_RANGE = (180, 180 + RANGE_WIDTH)
 RANK_X_RANGE = (395, 395 + RANGE_WIDTH)
 SURNAME_X_RANGE = (595, 595 + RANGE_WIDTH)
 FORENAMES_X_RANGE = (865, 865 + RANGE_WIDTH)
+UNIT_X_RANGE = SERVICE_NO_X_RANGE
+DATE_X_RANGE = (505, 505 + RANGE_WIDTH)
 
 
 class _RecordPage:
@@ -17,39 +19,42 @@ class _RecordPage:
         self.rects = myocrfuncs.get_rects(self.img)
 
 
-class _RecordFrontPage(_RecordPage):
+class RecordFrontPage(_RecordPage):
     def __init__(self, filepath: str):
         super().__init__(filepath)
         self.service_no_digits, self.service_no_all = self._get_service_no()
         self.rank = self._get_text(RANK_X_RANGE, ROW_1_Y_RANGE)
-        s = " ".join([self.fp.name, self.service_no_digits, self.service_no_all, self.rank])
-        try:
-            cv2.imshow(s, self.img)
-            cv2.waitKey()
-            cv2.destroyAllWindows()
-        except:
-            pass
+        self.surname = self._get_capitals(SURNAME_X_RANGE, ROW_1_Y_RANGE)
+        self.forenames = self._get_text(FORENAMES_X_RANGE, ROW_1_Y_RANGE)
+        self.unit = self._get_text(UNIT_X_RANGE, ROW_2_Y_RANGE)
+        self.date = self._get_text(DATE_X_RANGE, ROW_2_Y_RANGE)
 
     def _get_service_no(self) -> str:
         roi = _RegionOfImage(self, SERVICE_NO_X_RANGE, ROW_1_Y_RANGE)
         digits = roi._get_digits_only()
         text = roi._get_all_text()
-
+        text = text.strip("., \n")
         return digits, text
 
     def _get_text(self, x_range, y_range) -> str:
         roi = _RegionOfImage(self, x_range, y_range)
-        return roi._get_all_text()
+        text = roi._get_all_text()
+        text = text.strip("., \n")
+        return text
+
+    def _get_capitals(self, x_range, y_range) -> str:
+        roi = _RegionOfImage(self, x_range, y_range)
+        return roi._get_capitals_only()
 
 
-class _RecordBackPage(_RecordPage):
+class RecordBackPage(_RecordPage):
     pass
 
 
 class Record:
     def __init__(self, front_filepath: str, back_filepath: str):
-        self.front = _RecordFrontPage(front_filepath)
-        self.back = _RecordBackPage(back_filepath)
+        self.front = RecordFrontPage(front_filepath)
+        self.back = RecordBackPage(back_filepath)
 
 
 class _RegionOfImage:

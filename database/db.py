@@ -1,5 +1,26 @@
 import sqlite3
 
+class CWGC_SCHEMA:
+    CWGC_ID = 0
+    SURNAME = 1
+    FORENAMES = 2
+    INTIALS = 3
+    AGE_AT_DEATH = 4
+    HONOURS = 5
+    DATE_OF_DEATH = 6
+    DATE_OF_DEATH_2 = 7
+    RANK = 8
+    REGIMENT = 9
+    SECONDARY_REGIMENT = 10
+    UNIT = 11
+    SECONDARY_UNIT = 11
+    COUNTRY_OF_SERVICE = 12
+    SERVICE_NO = 13
+    BURIAL = 14
+    CEMETERY = 15
+    GRAVE_REF = 16
+    ADDITIONAL_INFO = 17
+
 
 class DatabaseMeta(type):
     _instance = None
@@ -22,9 +43,7 @@ class Database(metaclass=DatabaseMeta):
         with self.con as con:
             cur = con.execute(sql, params)
             res = cur.fetchall()
-            if len(res) == 1:
-                # hack to avoid having to think about if result is list or not
-                return res[0]
+
             return res
 
 
