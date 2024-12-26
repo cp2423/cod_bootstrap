@@ -79,6 +79,9 @@ def process(fp):
         cv2.CHAIN_APPROX_SIMPLE)
     cnts = cnts[0] if len(cnts) == 2 else cnts[1]
     rects = [cv2.boundingRect(c) for c in cnts]
+    temp = cv2.drawContours(thresh, cnts, -1, (0,255,0), 2)
+    cv2.imshow('temp', temp)
+    cv2.waitKey()
 
     DIGITS = "-c tessedit_char_whitelist=A" + "".join([str(i) for i in range(0, 10)])
 
@@ -102,11 +105,11 @@ def process(fp):
         cv2.waitKey()
 
 
-FOLDER = "/Users/chris/Dev/cod_records/aws/extracted/31829_B016712/"
+FOLDER = "/Users/chris/Dev/cod_records/aws/extracted/31829_B016684/"
 IMAGES = [fp for fp in os.scandir(FOLDER) if fp.name.endswith(".jpg")]
 
 #for fp in IMAGES:
-for fp in [fp for fp in IMAGES if fp.name.endswith("00092.jpg")]:
+for fp in [fp for fp in IMAGES if fp.name.endswith("00000.jpg")]:
     fileno = fp.name[-5]
     if int(fileno) % 2 == 1:
         continue

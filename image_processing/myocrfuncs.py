@@ -5,6 +5,7 @@ import numpy as np
 
 from imgtypes import Img, Rect
 
+TESTING = False
 
 MIN_NORM_H = 615
 MAX_NORM_H = 619
@@ -53,7 +54,8 @@ def get_rgb_img(filepath: str) -> Img:
     img = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
     if not is_normal_height(img):
         # rescale to "normal" height, maintaining aspect ratio
-        print(f"{filepath} is not normal height, currently {img.shape}, resizing")
+        if TESTING:
+            print(f"{filepath} is not normal height, currently {img.shape}, resizing")
         scale = MAX_NORM_H / img.shape[0]
         new_w = int(NORM_W * scale)
         img = cv2.resize(img, (new_w, MAX_NORM_H), interpolation=cv2.INTER_LINEAR)
@@ -64,8 +66,11 @@ def get_rgb_img(filepath: str) -> Img:
 def get_rects(img: Img) -> list[Rect]:
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    # initialize a rectangular and square structuring kernel
+    # initialize a rectangular structuring kernel (smaller than in tutorial)
     rectKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (15, 7))
+
+    # also a kernel for finding vertical lines
+    vertKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 5))
 
     # smooth the image using a 3x3 Gaussian blur and then apply a
     # blackhat morpholigical operator to find dark regions on a light
@@ -81,14 +86,24 @@ def get_rects(img: Img) -> list[Rect]:
     grad = (grad - minVal) / (maxVal - minVal)
     grad = (grad * 255).astype("uint8")
 
+    # attempt to find vertical lines and remove from iamge
+    lines = cv2.morphologyEx(grad, cv2.MORPH_ERODE, vertKernel)
+    grad = grad - lines
+
     # apply a closing operation using the rectangular kernel to close
     # gaps in between letters -- then apply Otsu's thresholding method
     grad = cv2.morphologyEx(grad, cv2.MORPH_CLOSE, rectKernel)
     thresh = cv2.threshold(grad, 0, 255,
         cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
 
+    # show image process only if we are testing
+    if TESTING:
+        myimgfuncs.show_img(lines, "lines")
+        myimgfuncs.show_img(grad)
+        myimgfuncs.show_img(thresh)
+
     # find contours in the thresholded image
-    cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
+    cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL,
         cv2.CHAIN_APPROX_SIMPLE)
     cnts = cnts[0] if len(cnts) == 2 else cnts[1]
     rects = [cv2.boundingRect(c) for c in cnts]

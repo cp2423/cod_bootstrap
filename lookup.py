@@ -39,3 +39,28 @@ def lookup(record: Record):
             print("??????????????? multiple hits found ??????????????? service no", service_no, page.fp)
     else:
         print(f"Service no is blank all='{page.service_no_all}' digits='{page.service_no_digits}'", page.fp)
+
+
+def basic_service_digits_match(record: Record) -> int:
+    for service_no in record.front.service_no_digits:
+        if not service_no or len(service_no) == 0:
+            # empty service number
+            continue
+        results = db.find_service_no(service_no)
+        if len(results) != 1:
+            # skip if no result found, or more than one
+            continue
+        res = results[0]
+        # cross reference on surname (multiple candidates might have been read)
+        surname = res[c.SURNAME]
+        for candidate in record.front.surname:
+            if candidate == surname:
+                # perfect match => score=1
+                return db.store_match(res[c.CWGC_ID], record, candidate, 1)
+            else:
+                # score surname, only accept if high enough
+                score = jaro.jaro_winkler_metric(candidate, surname)
+                if score > RATIO_TOLERANCE:
+                    return db.store_match(res[c.CWGC_ID], record, candidate, score)
+    # exited loop with no "hit"
+    return 0
